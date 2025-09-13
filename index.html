@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Villanueva Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <ul class="nav-menu">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#skills">Skills</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <div class="profile-photo">
+                    <img src="profile-photo.jpg" alt="Hannah Villanueva" id="profile-img">
+                </div>
+                <h1>></h1>
+                <p></p>
+                <a href="#projects" class="cta-button">View My Work</a>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <h2>About Me</h2>
+                <div class="about-content">
+                    <div class="editable-content" id="about-description" contenteditable="false"></div>
+                    <div class="edit-section">
+                        <button class="edit-btn" id="edit-about-btn">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit</span>
+                        </button>
+                        <div class="save-cancel-buttons" id="save-cancel-buttons">
+                            <button class="save-btn" id="save-about-btn">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                            <button class="cancel-btn" id="cancel-about-btn">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="projects">
+            <div class="container">
+                <h2>My Projects</h2>
+                <div id="projects-container">
+                    <div class="loading">Loading projects...</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="skills">
+            <div class="container">
+                <h2>Skills</h2>
+                <div class="skills-legend">
+                    <h4>Proficiency Level:</h4>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <span class="legend-color beginner"></span>
+                            <span>Beginner</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color intermediate"></span>
+                            <span>Intermediate</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color expert"></span>
+                            <span>Expert</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="skills-grid">
+                    <div class="skill-category">
+                        <h3>Programming Languages</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag" data-level="expert">Python</span>
+                            <span class="skill-tag" data-level="beginner">Java</span>
+                            <span class="skill-tag" data-level="intermediate">C++</span>
+                            <span class="skill-tag" data-level="intermediate">C</span>
+                            <span class="skill-tag" data-level="intermediate">C#</span>
+                            <span class="skill-tag" data-level="intermediate">HTML</span>
+                            <span class="skill-tag" data-level="beginner">CSS</span>
+                            <span class="skill-tag" data-level="beginner">JavaScript</span>
+                        </div>
+                    </div>
+                    <div class="skill-category">
+                        <h3>Frameworks & Libraries</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag" data-level="beginner">React</span>
+                            <span class="skill-tag" data-level="beginner">Node.js</span>
+                            <span class="skill-tag" data-level="beginner">jQuery</span>
+                        </div>
+                    </div>
+                    <div class="skill-category">
+                        <h3>Others</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag" data-level="expert">Git</span>
+                            <span class="skill-tag" data-level="expert">GitHub</span>
+                            <span class="skill-tag" data-level="expert">VS Code</span>
+                            <span class="skill-tag" data-level="expert">Uizard</span>
+                            <span class="skill-tag" data-level="beginner">MySQL</span>
+                            <span class="skill-tag" data-level="intermediate">Figma</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <div class="container">
+                <h2>Contacts</h2>
+                <div class="contact-content">
+                    <div class="social-links">
+                        <a href="https://github.com/hsvillanueva" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/hannahsophiavillanueva/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="mailto:hslvillanueva@gmail.com" target="_blank"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Hannah Villanueva. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
