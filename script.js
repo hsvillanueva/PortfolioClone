@@ -72,7 +72,8 @@ class EditableManager {
     
     startEditing() {
         this.isEditing = true;
-        this.originalContent = this.aboutContent.textContent;
+        // Store both text and HTML content for proper restoration
+        this.originalContent = this.aboutContent.innerHTML;
         
         this.aboutContent.contentEditable = true;
         this.aboutContent.classList.add('editing');
@@ -91,18 +92,29 @@ class EditableManager {
     }
     
     saveChanges() {
-        const newContent = this.aboutContent.textContent.trim();
+        // Get the HTML content to preserve formatting
+        let htmlContent = this.aboutContent.innerHTML.trim();
         
-        if (newContent === '') {
+        // Convert <div> and <br> tags to line breaks for display
+        let textContent = htmlContent
+            .replace(/<div>/g, '\n')
+            .replace(/<\/div>/g, '')
+            .replace(/<br\s*\/?>/g, '\n')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/<[^>]*>/g, '') // Remove any other HTML tags
+            .trim();
+        
+        if (textContent === '') {
             alert('Content cannot be empty!');
             return;
         }
         
-        // Save to localStorage (for immediate feedback)
-        localStorage.setItem('aboutContent', newContent);
+        // Save both HTML and text versions
+        localStorage.setItem('aboutContentHTML', htmlContent);
+        localStorage.setItem('aboutContent', textContent);
         
-        // Show save instructions
-        this.showSaveInstructions(newContent);
+        // Show save instructions with the clean text version
+        this.showSaveInstructions(textContent);
         
         this.finishEditing();
     }
@@ -143,7 +155,7 @@ class EditableManager {
             <div style="background: var(--bg-tertiary); padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid var(--accent-color);">
                 <p style="margin-bottom: 10px; font-weight: 500;">1. Open <code>script.js</code> and find the <code>updatePersonalInfo()</code> function</p>
                 <p style="margin-bottom: 10px;">2. Update the <code>description</code> field with:</p>
-                <textarea readonly style="width: 100%; height: 80px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; font-family: monospace; resize: none;">${content}</textarea>
+                <textarea readonly style="width: 100%; height: 120px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; font-family: monospace; resize: none; white-space: pre-wrap;">${content}</textarea>
                 <p style="margin-top: 10px;">3. Commit and push the changes to GitHub</p>
             </div>
             <div style="text-align: center; margin-top: 25px;">
@@ -168,7 +180,8 @@ class EditableManager {
     }
     
     cancelEditing() {
-        this.aboutContent.textContent = this.originalContent;
+        // Restore the original HTML content
+        this.aboutContent.innerHTML = this.originalContent;
         this.finishEditing();
         this.showFeedback('Changes cancelled', 'info');
     }
@@ -227,9 +240,16 @@ class EditableManager {
     }
     
     loadSavedContent() {
-        const savedContent = localStorage.getItem('aboutContent');
-        if (savedContent) {
-            this.aboutContent.textContent = savedContent;
+        // Try to load HTML content first (preserves formatting), fallback to text
+        const savedHTMLContent = localStorage.getItem('aboutContentHTML');
+        const savedTextContent = localStorage.getItem('aboutContent');
+        
+        if (savedHTMLContent) {
+            this.aboutContent.innerHTML = savedHTMLContent;
+        } else if (savedTextContent) {
+            // Convert text line breaks to HTML for display
+            const htmlContent = savedTextContent.replace(/\n/g, '<br>');
+            this.aboutContent.innerHTML = htmlContent;
         }
     }
 }
@@ -493,8 +513,18 @@ function updatePersonalInfo() {
     
     // Set initial about content
     const aboutContent = document.getElementById('about-description');
-    const savedContent = localStorage.getItem('aboutContent');
-    aboutContent.textContent = savedContent || personalInfo.description;
+    const savedHTMLContent = localStorage.getItem('aboutContentHTML');
+    const savedTextContent = localStorage.getItem('aboutContent');
+    
+    if (savedHTMLContent) {
+        aboutContent.innerHTML = savedHTMLContent;
+    } else if (savedTextContent) {
+        // Convert text line breaks to HTML for display
+        const htmlContent = savedTextContent.replace(/\n/g, '<br>');
+        aboutContent.innerHTML = htmlContent;
+    } else {
+        aboutContent.textContent = personalInfo.description;
+    }
     
     const socialLinks = document.querySelectorAll('.social-links a');
     socialLinks[0].href = personalInfo.github; 

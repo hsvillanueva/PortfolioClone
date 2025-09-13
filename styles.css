@@ -251,6 +251,8 @@ header {
     font-size: 1rem;
     color: var(--text-secondary);
     line-height: 1.6;
+    white-space: pre-wrap; /* Preserves whitespace and line breaks */
+    word-wrap: break-word; /* Prevents long words from breaking layout */
 }
 
 .editable-content.editing {
