@@ -1,6 +1,255 @@
 const GITHUB_USERNAME = 'hsvillanueva';
 const projectsContainer = document.getElementById('projects-container');
 
+// Global data storage
+let personalData = {};
+
+// Theme Toggle Functionality
+function initThemeToggle() {
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = themeToggle.querySelector('i');
+    
+    // Check for saved theme preference or default to 'dark'
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeIcon(themeIcon, currentTheme);
+    
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(themeIcon, newTheme);
+    });
+}
+
+function updateThemeIcon(icon, theme) {
+    icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+
+// Load personal data from JSON
+async function loadPersonalData() {
+    try {
+        const response = await fetch('./data.json');
+        if (!response.ok) {
+            throw new Error('Failed to load personal data');
+        }
+        personalData = await response.json();
+        updatePersonalInfo();
+    } catch (error) {
+        console.error('Error loading personal data:', error);
+        // Fallback to hardcoded data
+        personalData = {
+            personalInfo: {
+                name: "Hannah Villanueva",
+                title: "Developer in Progress",
+                bio: "I am Hannah Sophia L. Villanueva, a 3rd year BS Computer Science student at Caraga State University - Main Campus. I specialize in Python programming and designing UX/UI interfaces for websites. Currently learning frameworks like React, Django and Flask to enhance my web development skills.",
+                email: "hslvillanueva@gmail.com",
+                linkedin: "https://www.linkedin.com/in/hannahsophiavillanueva/",
+                github: "https://github.com/hsvillanueva"
+            }
+        };
+        updatePersonalInfo();
+    }
+}
+
+// Update personal information on the page
+function updatePersonalInfo() {
+    const info = personalData.personalInfo;
+    
+    document.getElementById('hero-name').textContent = `> ${info.name}`;
+    document.getElementById('hero-title').textContent = info.title;
+    document.getElementById('about-description').textContent = info.bio;
+    
+    // Update social links
+    const socialLinks = document.querySelectorAll('.social-links a');
+    if (socialLinks.length >= 3) {
+        socialLinks[0].href = info.github;
+        socialLinks[1].href = info.linkedin;
+        socialLinks[2].href = `mailto:${info.email}`;
+    }
+}
+
+// Editable Section Functionality
+function initEditableSection() {
+    const editBtn = document.getElementById('edit-about-btn');
+    const aboutText = document.getElementById('about-description');
+    const aboutEditor = document.getElementById('about-editor');
+    const aboutTextarea = document.getElementById('about-textarea');
+    const saveBtn = document.getElementById('save-about-btn');
+    const cancelBtn = document.getElementById('cancel-about-btn');
+    
+    let originalText = '';
+    let isEditing = false;
+    
+    editBtn.addEventListener('click', () => {
+        if (!isEditing) {
+            startEditing();
+        }
+    });
+    
+    saveBtn.addEventListener('click', () => {
+        saveChanges();
+    });
+    
+    cancelBtn.addEventListener('click', () => {
+        cancelEditing();
+    });
+    
+    // Save on Ctrl+Enter
+    aboutTextarea.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'Enter') {
+            saveChanges();
+        }
+        if (e.key === 'Escape') {
+            cancelEditing();
+        }
+    });
+    
+    function startEditing() {
+        isEditing = true;
+        originalText = aboutText.textContent;
+        aboutTextarea.value = originalText;
+        
+        aboutText.style.display = 'none';
+        aboutEditor.style.display = 'block';
+        editBtn.style.opacity = '0.5';
+        editBtn.disabled = true;
+        
+        aboutTextarea.focus();
+        aboutTextarea.setSelectionRange(aboutTextarea.value.length, aboutTextarea.value.length);
+    }
+    
+    function saveChanges() {
+        const newText = aboutTextarea.value.trim();
+        if (newText && newText !== originalText) {
+            aboutText.textContent = newText;
+            personalData.personalInfo.bio = newText;
+            
+            // Save to localStorage for persistence during session
+            localStorage.setItem('personalData', JSON.stringify(personalData));
+            
+            // Show success feedback
+            showNotification('Changes saved successfully!', 'success');
+        }
+        
+        finishEditing();
+    }
+    
+    function cancelEditing() {
+        aboutTextarea.value = originalText;
+        finishEditing();
+    }
+    
+    function finishEditing() {
+        isEditing = false;
+        aboutText.style.display = 'block';
+        aboutEditor.style.display = 'none';
+        editBtn.style.opacity = '1';
+        editBtn.disabled = false;
+    }
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    // Remove existing notification if any
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    // Add notification styles if not already present
+    if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            .notification {
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: var(--accent-color);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1001;
+                animation: slideInRight 0.3s ease;
+            }
+            
+            .notification-success {
+                background: var(--accent-color);
+            }
+            
+            .notification-content {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Load saved data from localStorage on page load
+function loadSavedData() {
+    const savedData = localStorage.getItem('personalData');
+    if (savedData) {
+        try {
+            const parsedData = JSON.parse(savedData);
+            personalData = { ...personalData, ...parsedData };
+            updatePersonalInfo();
+        } catch (error) {
+            console.error('Error loading saved data:', error);
+        }
+    }
+}
+
 async function fetchGitHubProjects() {
     try {
         const reposResponse = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=12&type=all`);
@@ -222,6 +471,7 @@ function displayError() {
     `;
 }
 
+// Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -235,42 +485,20 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Header background change on scroll
 window.addEventListener('scroll', () => {
     const header = document.querySelector('header');
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    
     if (window.scrollY > 50) {
-        header.style.background = '#0d1117';
+        header.style.background = currentTheme === 'dark' ? '#0d1117' : '#ffffff';
     } else {
-        header.style.background = '#161b22';
+        header.style.background = currentTheme === 'dark' ? '#161b22' : '#f6f8fa';
     }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchGitHubProjects();
-});
-
-function updatePersonalInfo() {
-    const personalInfo = {
-        name: "Hannah Villanueva",
-        title: "Developer in Progress",
-        description: "I am Hannah Sophia L. Villanueva, a 3rd year BS Computer Science student at Caraga State University - Main Campus. I specialize in Python programming and designing UX/UI interfaces for websites. Currently learning frameworks like React, Django and Flask to enhance my web development skills.",
-        email: "hslvillanueva@gmail.com",
-        linkedin: "https://www.linkedin.com/in/hannahsophiavillanueva/",
-        github: `https://github.com/hsvillanueva`
-    };
-    
-    document.querySelector('.hero-content h1').textContent = `> ${personalInfo.name}`;
-    document.querySelector('.hero-content p').textContent = personalInfo.title;
-    document.querySelector('.about p').textContent = personalInfo.description;
-    
-    const socialLinks = document.querySelectorAll('.social-links a');
-    socialLinks[0].href = personalInfo.github; 
-    socialLinks[1].href = personalInfo.linkedin;
-    socialLinks[2].href = `mailto:${personalInfo.email}`;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    updatePersonalInfo();
-    
+// Profile image error handling
+function initProfileImage() {
     const profileImg = document.getElementById('profile-img');
     profileImg.addEventListener('error', function() {
         this.style.display = 'none';
@@ -279,4 +507,14 @@ document.addEventListener('DOMContentLoaded', () => {
         placeholder.innerHTML = '<i class="fas fa-user"></i>';
         this.parentNode.appendChild(placeholder);
     });
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initThemeToggle();
+    loadPersonalData();
+    loadSavedData();
+    initEditableSection();
+    initProfileImage();
+    fetchGitHubProjects();
 });

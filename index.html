@@ -18,6 +18,9 @@
                     <li><a href="#skills">Skills</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </nav>
     </header>
@@ -28,16 +31,35 @@
                 <div class="profile-photo">
                     <img src="profile-photo.jpg" alt="Hannah Villanueva" id="profile-img">
                 </div>
-                <h1>></h1>
-                <p></p>
+                <h1 id="hero-name">></h1>
+                <p id="hero-title"></p>
                 <a href="#projects" class="cta-button">View My Work</a>
             </div>
         </section>
 
         <section id="about" class="about">
             <div class="container">
-                <h2>About Me</h2>
-                <p id="about-description"></p>
+                <div class="section-header">
+                    <h2>About Me</h2>
+                    <button id="edit-about-btn" class="edit-btn" aria-label="Edit about section">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div class="editable-content">
+                    <p id="about-description" class="editable-text"></p>
+                    <div id="about-editor" class="editor-container" style="display: none;">
+                        <textarea id="about-textarea" class="edit-textarea"></textarea>
+                        <div class="editor-buttons">
+                            <button id="save-about-btn" class="save-btn">
+                                <i class="fas fa-check"></i> Save
+                            </button>
+                            <button id="cancel-about-btn" class="cancel-btn">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section id="projects" class="projects">
