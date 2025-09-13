@@ -98,73 +98,13 @@ class EditableManager {
             return;
         }
         
-        // Save to localStorage (for immediate feedback)
+        // Save to localStorage
         localStorage.setItem('aboutContent', newContent);
         
-        // Show save instructions
-        this.showSaveInstructions(newContent);
-        
         this.finishEditing();
-    }
-    
-    showSaveInstructions(content) {
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        `;
         
-        const modalContent = document.createElement('div');
-        modalContent.style.cssText = `
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 30px;
-            max-width: 600px;
-            margin: 20px;
-            color: var(--text-primary);
-        `;
-        
-        modalContent.innerHTML = `
-            <h3 style="color: var(--accent-color); margin-bottom: 20px;">
-                <i class="fas fa-save"></i> Save Changes Permanently
-            </h3>
-            <p style="margin-bottom: 20px; color: var(--text-secondary);">
-                To make this change permanent on GitHub Pages, you need to update your code:
-            </p>
-            <div style="background: var(--bg-tertiary); padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid var(--accent-color);">
-                <p style="margin-bottom: 10px; font-weight: 500;">1. Open <code>script.js</code> and find the <code>updatePersonalInfo()</code> function</p>
-                <p style="margin-bottom: 10px;">2. Update the <code>description</code> field with:</p>
-                <textarea readonly style="width: 100%; height: 80px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; font-family: monospace; resize: none;">${content}</textarea>
-                <p style="margin-top: 10px;">3. Commit and push the changes to GitHub</p>
-            </div>
-            <div style="text-align: center; margin-top: 25px;">
-                <button id="close-modal" style="background: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
-                    Got it!
-                </button>
-            </div>
-        `;
-        
-        modal.appendChild(modalContent);
-        document.body.appendChild(modal);
-        
-        modal.querySelector('#close-modal').addEventListener('click', () => {
-            modal.remove();
-        });
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove();
-            }
-        });
+        // Show success feedback
+        this.showFeedback('Changes saved successfully!', 'success');
     }
     
     cancelEditing() {
