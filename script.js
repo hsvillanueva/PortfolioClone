@@ -36,6 +36,9 @@ async function loadPersonalData() {
             throw new Error('Failed to load personal data');
         }
         personalData = await response.json();
+        
+        // Check if there's saved data in localStorage that overrides JSON
+        loadSavedData();
         updatePersonalInfo();
     } catch (error) {
         console.error('Error loading personal data:', error);
@@ -50,6 +53,9 @@ async function loadPersonalData() {
                 github: "https://github.com/hsvillanueva"
             }
         };
+        
+        // Check if there's saved data in localStorage that overrides fallback
+        loadSavedData();
         updatePersonalInfo();
     }
 }
@@ -60,7 +66,10 @@ function updatePersonalInfo() {
     
     document.getElementById('hero-name').textContent = `> ${info.name}`;
     document.getElementById('hero-title').textContent = info.title;
-    document.getElementById('about-description').textContent = info.bio;
+    
+    // Handle line breaks in bio text
+    const aboutElement = document.getElementById('about-description');
+    aboutElement.innerHTML = formatTextWithLineBreaks(info.bio);
     
     // Update social links
     const socialLinks = document.querySelectorAll('.social-links a');
@@ -69,6 +78,16 @@ function updatePersonalInfo() {
         socialLinks[1].href = info.linkedin;
         socialLinks[2].href = `mailto:${info.email}`;
     }
+}
+
+// Helper function to format text with line breaks
+function formatTextWithLineBreaks(text) {
+    return text.replace(/\n/g, '<br>');
+}
+
+// Helper function to get plain text from element (removing HTML)
+function getPlainTextFromElement(element) {
+    return element.innerHTML.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
 }
 
 // Editable Section Functionality
@@ -97,19 +116,22 @@ function initEditableSection() {
         cancelEditing();
     });
     
-    // Save on Ctrl+Enter
+    // Save on Ctrl+Enter, cancel on Escape
     aboutTextarea.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
             saveChanges();
         }
         if (e.key === 'Escape') {
+            e.preventDefault();
             cancelEditing();
         }
     });
     
     function startEditing() {
         isEditing = true;
-        originalText = aboutText.textContent;
+        // Get the plain text version (convert <br> back to \n)
+        originalText = getPlainTextFromElement(aboutText);
         aboutTextarea.value = originalText;
         
         aboutText.style.display = 'none';
@@ -123,15 +145,18 @@ function initEditableSection() {
     
     function saveChanges() {
         const newText = aboutTextarea.value.trim();
-        if (newText && newText !== originalText) {
-            aboutText.textContent = newText;
+        if (newText !== originalText) {
+            // Update the bio in personalData
             personalData.personalInfo.bio = newText;
             
-            // Save to localStorage for persistence during session
+            // Save to localStorage for persistence
             localStorage.setItem('personalData', JSON.stringify(personalData));
             
+            // Update the display
+            aboutText.innerHTML = formatTextWithLineBreaks(newText);
+            
             // Show success feedback
-            showNotification('Changes saved successfully!', 'success');
+            showNotification('Changes saved successfully! (Changes persist in your browser)', 'success');
         }
         
         finishEditing();
@@ -184,6 +209,8 @@ function showNotification(message, type = 'info') {
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                 z-index: 1001;
                 animation: slideInRight 0.3s ease;
+                max-width: 350px;
+                word-wrap: break-word;
             }
             
             .notification-success {
@@ -192,10 +219,11 @@ function showNotification(message, type = 'info') {
             
             .notification-content {
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
                 gap: 8px;
                 font-size: 0.9rem;
                 font-weight: 500;
+                line-height: 1.4;
             }
             
             @keyframes slideInRight {
@@ -219,13 +247,21 @@ function showNotification(message, type = 'info') {
                     opacity: 0;
                 }
             }
+            
+            @media (max-width: 768px) {
+                .notification {
+                    right: 10px;
+                    left: 10px;
+                    max-width: none;
+                }
+            }
         `;
         document.head.appendChild(style);
     }
     
     document.body.appendChild(notification);
     
-    // Auto remove after 3 seconds
+    // Auto remove after 4 seconds (longer for the persistence message)
     setTimeout(() => {
         notification.style.animation = 'slideOutRight 0.3s ease';
         setTimeout(() => {
@@ -233,7 +269,7 @@ function showNotification(message, type = 'info') {
                 notification.remove();
             }
         }, 300);
-    }, 3000);
+    }, 4000);
 }
 
 // Load saved data from localStorage on page load
@@ -242,13 +278,30 @@ function loadSavedData() {
     if (savedData) {
         try {
             const parsedData = JSON.parse(savedData);
-            personalData = { ...personalData, ...parsedData };
-            updatePersonalInfo();
+            // Merge saved data with existing data, prioritizing saved data
+            personalData = {
+                ...personalData,
+                personalInfo: {
+                    ...personalData.personalInfo,
+                    ...parsedData.personalInfo
+                }
+            };
+            console.log('Loaded saved data from localStorage');
         } catch (error) {
             console.error('Error loading saved data:', error);
         }
     }
 }
+
+// Add function to clear saved data (for testing purposes)
+function clearSavedData() {
+    localStorage.removeItem('personalData');
+    localStorage.removeItem('theme');
+    location.reload();
+}
+
+// Make clearSavedData available globally for debugging
+window.clearSavedData = clearSavedData;
 
 async function fetchGitHubProjects() {
     try {
@@ -513,7 +566,6 @@ function initProfileImage() {
 document.addEventListener('DOMContentLoaded', () => {
     initThemeToggle();
     loadPersonalData();
-    loadSavedData();
     initEditableSection();
     initProfileImage();
     fetchGitHubProjects();
