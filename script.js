@@ -144,19 +144,28 @@ function initEditableSection() {
     }
     
     function saveChanges() {
-        const newText = aboutTextarea.value.trim();
-        if (newText !== originalText) {
+        const newText = aboutTextarea.value;
+        
+        // Always save if there's any content, regardless of whether it changed
+        if (newText) {
+            console.log('Saving changes...');
+            console.log('Original:', originalText);
+            console.log('New:', newText);
+            
             // Update the bio in personalData
             personalData.personalInfo.bio = newText;
             
             // Save to localStorage for persistence
             localStorage.setItem('personalData', JSON.stringify(personalData));
+            console.log('Saved to localStorage:', localStorage.getItem('personalData'));
             
             // Update the display
             aboutText.innerHTML = formatTextWithLineBreaks(newText);
             
             // Show success feedback
             showNotification('Changes saved successfully! (Changes persist in your browser)', 'success');
+        } else {
+            showNotification('Cannot save empty content', 'error');
         }
         
         finishEditing();
@@ -188,7 +197,7 @@ function showNotification(message, type = 'info') {
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
         <div class="notification-content">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
             <span>${message}</span>
         </div>
     `;
@@ -215,6 +224,10 @@ function showNotification(message, type = 'info') {
             
             .notification-success {
                 background: var(--accent-color);
+            }
+            
+            .notification-error {
+                background: var(--error-color);
             }
             
             .notification-content {
@@ -286,10 +299,12 @@ function loadSavedData() {
                     ...parsedData.personalInfo
                 }
             };
-            console.log('Loaded saved data from localStorage');
+            console.log('Loaded saved data from localStorage:', parsedData);
         } catch (error) {
             console.error('Error loading saved data:', error);
         }
+    } else {
+        console.log('No saved data found in localStorage');
     }
 }
 
@@ -297,11 +312,22 @@ function loadSavedData() {
 function clearSavedData() {
     localStorage.removeItem('personalData');
     localStorage.removeItem('theme');
+    console.log('Cleared all saved data');
     location.reload();
 }
 
-// Make clearSavedData available globally for debugging
+// Add function to check saved data (for debugging)
+function checkSavedData() {
+    const savedData = localStorage.getItem('personalData');
+    const theme = localStorage.getItem('theme');
+    console.log('Personal Data:', savedData);
+    console.log('Theme:', theme);
+    return { personalData: savedData, theme: theme };
+}
+
+// Make functions available globally for debugging
 window.clearSavedData = clearSavedData;
+window.checkSavedData = checkSavedData;
 
 async function fetchGitHubProjects() {
     try {
