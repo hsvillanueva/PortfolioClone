@@ -65,9 +65,10 @@ header {
     margin: 0 auto;
     padding: 0 20px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     height: 60px;
+    position: relative;
 }
 
 .nav-menu {
@@ -101,6 +102,8 @@ header {
     justify-content: center;
     font-size: 1rem;
     transition: all 0.2s ease;
+    position: absolute;
+    right: 0;
 }
 
 .theme-toggle:hover {
@@ -811,6 +814,8 @@ footer {
         flex-direction: column;
         height: auto;
         padding: 10px 20px;
+        justify-content: center;
+        position: relative;
     }
 
     .nav-menu {

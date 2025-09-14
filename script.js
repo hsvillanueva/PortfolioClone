@@ -564,15 +564,14 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Header background change on scroll
+// Header background change on scroll - updated to sync with theme
 window.addEventListener('scroll', () => {
     const header = document.querySelector('header');
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    
+    // Remove the custom background since CSS variables will handle it automatically
     if (window.scrollY > 50) {
-        header.style.background = currentTheme === 'dark' ? '#0d1117' : '#ffffff';
+        header.style.background = 'var(--bg-primary)';
     } else {
-        header.style.background = currentTheme === 'dark' ? '#161b22' : '#f6f8fa';
+        header.style.background = 'var(--bg-secondary)';
     }
 });
 
