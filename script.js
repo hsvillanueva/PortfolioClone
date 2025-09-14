@@ -1,15 +1,12 @@
 const GITHUB_USERNAME = 'hsvillanueva';
 const projectsContainer = document.getElementById('projects-container');
 
-// Global data storage
 let personalData = {};
 
-// Theme Toggle Functionality
 function initThemeToggle() {
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = themeToggle.querySelector('i');
     
-    // Check for saved theme preference or default to 'dark'
     const currentTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', currentTheme);
     updateThemeIcon(themeIcon, currentTheme);
@@ -28,7 +25,6 @@ function updateThemeIcon(icon, theme) {
     icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
 }
 
-// Load personal data from JSON
 async function loadPersonalData() {
     try {
         const response = await fetch('./data.json');
@@ -37,12 +33,10 @@ async function loadPersonalData() {
         }
         personalData = await response.json();
         
-        // Check if there's saved data in localStorage that overrides JSON
         loadSavedData();
         updatePersonalInfo();
     } catch (error) {
         console.error('Error loading personal data:', error);
-        // Fallback to hardcoded data
         personalData = {
             personalInfo: {
                 name: "Hannah Villanueva",
@@ -54,24 +48,20 @@ async function loadPersonalData() {
             }
         };
         
-        // Check if there's saved data in localStorage that overrides fallback
         loadSavedData();
         updatePersonalInfo();
     }
 }
 
-// Update personal information on the page
 function updatePersonalInfo() {
     const info = personalData.personalInfo;
     
     document.getElementById('hero-name').textContent = `> ${info.name}`;
     document.getElementById('hero-title').textContent = info.title;
     
-    // Handle line breaks in bio text
     const aboutElement = document.getElementById('about-description');
     aboutElement.innerHTML = formatTextWithLineBreaks(info.bio);
     
-    // Update social links
     const socialLinks = document.querySelectorAll('.social-links a');
     if (socialLinks.length >= 3) {
         socialLinks[0].href = info.github;
@@ -80,17 +70,14 @@ function updatePersonalInfo() {
     }
 }
 
-// Helper function to format text with line breaks
 function formatTextWithLineBreaks(text) {
     return text.replace(/\n/g, '<br>');
 }
 
-// Helper function to get plain text from element (removing HTML)
 function getPlainTextFromElement(element) {
     return element.innerHTML.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
 }
 
-// Editable Section Functionality
 function initEditableSection() {
     const editBtn = document.getElementById('edit-about-btn');
     const aboutText = document.getElementById('about-description');
@@ -116,7 +103,6 @@ function initEditableSection() {
         cancelEditing();
     });
     
-    // Save on Ctrl+Enter, cancel on Escape
     aboutTextarea.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'Enter') {
             e.preventDefault();
@@ -130,7 +116,6 @@ function initEditableSection() {
     
     function startEditing() {
         isEditing = true;
-        // Get the plain text version (convert <br> back to \n)
         originalText = getPlainTextFromElement(aboutText);
         aboutTextarea.value = originalText;
         
@@ -146,23 +131,18 @@ function initEditableSection() {
     function saveChanges() {
         const newText = aboutTextarea.value;
         
-        // Always save if there's any content, regardless of whether it changed
         if (newText) {
             console.log('Saving changes...');
             console.log('Original:', originalText);
             console.log('New:', newText);
             
-            // Update the bio in personalData
             personalData.personalInfo.bio = newText;
             
-            // Save to localStorage for persistence
             localStorage.setItem('personalData', JSON.stringify(personalData));
             console.log('Saved to localStorage:', localStorage.getItem('personalData'));
             
-            // Update the display
             aboutText.innerHTML = formatTextWithLineBreaks(newText);
             
-            // Show success feedback
             showNotification('Changes saved successfully! (Changes persist in your browser)', 'success');
         } else {
             showNotification('Cannot save empty content', 'error');
@@ -185,9 +165,7 @@ function initEditableSection() {
     }
 }
 
-// Notification system
 function showNotification(message, type = 'info') {
-    // Remove existing notification if any
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
         existingNotification.remove();
@@ -202,7 +180,6 @@ function showNotification(message, type = 'info') {
         </div>
     `;
     
-    // Add notification styles if not already present
     if (!document.querySelector('#notification-styles')) {
         const style = document.createElement('style');
         style.id = 'notification-styles';
@@ -274,7 +251,6 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    // Auto remove after 4 seconds (longer for the persistence message)
     setTimeout(() => {
         notification.style.animation = 'slideOutRight 0.3s ease';
         setTimeout(() => {
@@ -285,13 +261,11 @@ function showNotification(message, type = 'info') {
     }, 4000);
 }
 
-// Load saved data from localStorage on page load
 function loadSavedData() {
     const savedData = localStorage.getItem('personalData');
     if (savedData) {
         try {
             const parsedData = JSON.parse(savedData);
-            // Merge saved data with existing data, prioritizing saved data
             personalData = {
                 ...personalData,
                 personalInfo: {
@@ -308,7 +282,6 @@ function loadSavedData() {
     }
 }
 
-// Add function to clear saved data (for testing purposes)
 function clearSavedData() {
     localStorage.removeItem('personalData');
     localStorage.removeItem('theme');
@@ -316,7 +289,6 @@ function clearSavedData() {
     location.reload();
 }
 
-// Add function to check saved data (for debugging)
 function checkSavedData() {
     const savedData = localStorage.getItem('personalData');
     const theme = localStorage.getItem('theme');
@@ -325,7 +297,6 @@ function checkSavedData() {
     return { personalData: savedData, theme: theme };
 }
 
-// Make functions available globally for debugging
 window.clearSavedData = clearSavedData;
 window.checkSavedData = checkSavedData;
 
@@ -550,7 +521,6 @@ function displayError() {
     `;
 }
 
-// Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -564,10 +534,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Header background change on scroll - updated to sync with theme
 window.addEventListener('scroll', () => {
     const header = document.querySelector('header');
-    // Remove the custom background since CSS variables will handle it automatically
     if (window.scrollY > 50) {
         header.style.background = 'var(--bg-primary)';
     } else {
@@ -575,7 +543,6 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Profile image error handling
 function initProfileImage() {
     const profileImg = document.getElementById('profile-img');
     profileImg.addEventListener('error', function() {
@@ -587,7 +554,6 @@ function initProfileImage() {
     });
 }
 
-// Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     initThemeToggle();
     loadPersonalData();
